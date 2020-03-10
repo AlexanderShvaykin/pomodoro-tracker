@@ -1,4 +1,5 @@
 require "ruby/pomodoro/version"
+require "ruby/pomodoro/task"
 
 module Ruby
   module Pomodoro

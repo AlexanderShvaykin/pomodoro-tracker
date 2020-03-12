@@ -30,7 +30,8 @@ module Ruby
           raise Error if @in_progress
           @in_progress = true
           @do = Thread.new do
-            progressbar.start(task.name)
+            progress = progressbar || Ruby::Pomodoro::Progressbar.new(seconds: pomodoro_size)
+            progress.start(task.name)
             count = 0
             loop do
               seconds = time_interval || 1
@@ -38,7 +39,7 @@ module Ruby
               unless Thread.current["pause"]
                 task.track(seconds)
                 count += seconds
-                progressbar.increment
+                progress.increment
               end
               stop if count >= pomodoro_size.to_i
             end

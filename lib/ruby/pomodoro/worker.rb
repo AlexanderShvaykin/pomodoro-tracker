@@ -38,7 +38,7 @@ module Ruby
                 task.track(seconds)
                 count += seconds
               end
-              stop if count >= pomodoro_size
+              stop if count >= pomodoro_size.to_i
             end
           end
           task

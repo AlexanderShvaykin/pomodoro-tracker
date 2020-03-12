@@ -22,7 +22,7 @@ module Ruby
       private
 
       def print
-        @stream.print "#{@text} [#{strftime}]" + "\r"
+        @stream.print " In progress: #{@text} [#{strftime}]" + "\r"
         @stream.flush
       end
 

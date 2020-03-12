@@ -1,10 +1,12 @@
 RSpec.describe Ruby::Pomodoro::Worker do
   let(:worker) { described_class }
   let(:task) { Ruby::Pomodoro::Task.new("foo") }
+  let(:progressbar) { instance_double(Ruby::Pomodoro::Progressbar, increment: nil, start: nil) }
 
   before do
     worker.time_interval = 1
     worker.pomodoro_size = 5
+    worker.progressbar = progressbar
   end
 
   after do
@@ -22,6 +24,7 @@ RSpec.describe Ruby::Pomodoro::Worker do
     it "returns config values", :aggregate_failures do
       expect(worker.time_interval).to eq 0.5
       expect(worker.pomodoro_size).to eq 10
+      expect(worker.progressbar).to eq progressbar
     end
   end
 
@@ -55,7 +58,9 @@ RSpec.describe Ruby::Pomodoro::Worker do
       expect { subject }.to raise_error(Ruby::Pomodoro::Error)
     end
 
-    it "tracks time" do
+    it "tracks time and print progress", :aggregate_failures do
+      expect(progressbar).to receive(:start).with(task.name)
+      expect(progressbar).to receive(:increment)
       worker.time_interval = 0.1
       do_task
       sleep 0.5

@@ -2,8 +2,15 @@ RSpec.describe Ruby::Pomodoro::Worker do
   let(:worker) { described_class }
   let(:task) { Ruby::Pomodoro::Task.new("foo") }
 
+  before do
+    worker.time_interval = 1
+    worker.pomodoro_size = 5
+  end
+
   after do
     worker.stop
+    worker.time_interval = 1
+    worker.pomodoro_size = 5
   end
 
   describe "configure" do
@@ -63,6 +70,29 @@ RSpec.describe Ruby::Pomodoro::Worker do
         sleep 0.5
         expect(task.spent_time).to be < 0.4
       end
+    end
+  end
+
+  describe ".pause" do
+    it "pauses work" do
+      worker.time_interval = 0.1
+      worker.do(task)
+      sleep 0.1
+      worker.pause
+      sleep 0.5
+      expect(task.spent_time).to be < 0.3
+    end
+  end
+
+  describe ".resume" do
+    it "pauses work" do
+      worker.time_interval = 0.1
+      worker.do(task)
+      sleep 0.1
+      worker.pause
+      worker.resume
+      sleep 0.5
+      expect(task.spent_time).to be > 0.4
     end
   end
 end

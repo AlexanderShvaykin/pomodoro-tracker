@@ -13,6 +13,17 @@ module Ruby
           true
         end
 
+        # @return [TrueClass]
+        def pause
+          @do["pause"] = true
+        end
+
+        # @return [TrueClass]
+        def resume
+          @do["pause"] = false
+          true
+        end
+
         # @param [Ruby::Pomodoro::Task] task
         # @return [Ruby::Pomodoro::Task]
         def do(task)
@@ -23,8 +34,10 @@ module Ruby
             loop do
               seconds = time_interval || 1
               sleep seconds
-              task.track(seconds)
-              count += seconds
+              unless Thread.current["pause"]
+                task.track(seconds)
+                count += seconds
+              end
               stop if count >= pomodoro_size
             end
           end

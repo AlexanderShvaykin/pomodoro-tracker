@@ -9,10 +9,12 @@ RSpec.describe Ruby::Pomodoro::Worker do
   describe "configure" do
     before do
       worker.time_interval = 0.5
+      worker.pomodoro_size = 10
     end
 
     it "returns config values", :aggregate_failures do
       expect(worker.time_interval).to eq 0.5
+      expect(worker.pomodoro_size).to eq 10
     end
   end
 
@@ -51,6 +53,16 @@ RSpec.describe Ruby::Pomodoro::Worker do
       do_task
       sleep 0.5
       expect(task.spent_time).to be >= 0.4
+    end
+
+    context "with pomodoro_size setup" do
+      it "tracks time" do
+        worker.time_interval = 0.1
+        worker.pomodoro_size = 0.2
+        do_task
+        sleep 0.5
+        expect(task.spent_time).to be < 0.4
+      end
     end
   end
 end

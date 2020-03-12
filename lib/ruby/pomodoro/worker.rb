@@ -3,7 +3,7 @@ module Ruby
     # Singleton for work with tasks in application
     module Worker
       class << self
-        attr_accessor :time_interval
+        attr_accessor :time_interval, :pomodoro_size
 
         # clear work, should be called before do next task
         # @return [TrueClass]
@@ -19,9 +19,13 @@ module Ruby
           raise Error if @in_progress
           @in_progress = true
           @do = Thread.new do
+            count = 0
             loop do
-              sleep time_interval
-              task.track(time_interval)
+              seconds = time_interval || 1
+              sleep seconds
+              task.track(seconds)
+              count += seconds
+              stop if count >= pomodoro_size
             end
           end
           task

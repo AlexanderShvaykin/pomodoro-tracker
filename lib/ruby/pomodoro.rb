@@ -1,3 +1,4 @@
+require 'terminal-notifier'
 require "ruby/pomodoro/version"
 require "ruby/pomodoro/task"
 require "ruby/pomodoro/worker"
@@ -6,7 +7,7 @@ require "ruby/pomodoro/progressbar"
 module Ruby
   module Pomodoro
     class Error < StandardError; end
-    PENDING_ANSWER_TIME = 60 * 5
+    PENDING_REPEAT_TIME = 60 * 5
     class << self
       def start
         @notification = build_notification
@@ -19,12 +20,12 @@ module Ruby
         task_list
         2.times { puts }
         commands = <<~TEXT
-            [c] - Choose task to work
-            [a] - Add task
-            [p] - Pause work
-            [r] - Resume work
-            [s] - Stop work
-            [q] - Quit
+          [c] - Choose task to work
+          [a] - Add task
+          [p] - Pause work
+          [r] - Resume work
+          [s] - Stop work
+          [q] - Quit
         TEXT
 
         loop do
@@ -54,7 +55,7 @@ module Ruby
           choose_task
         when 'p'
           Worker.pause
-          notify("Resume?", PENDING_ANSWER_TIME)
+          notify("Resume?", PENDING_REPEAT_TIME)
         when 'r'
           @notification["stop"] = true
           Worker.resume
@@ -109,8 +110,8 @@ module Ruby
             message = Thread.current["message"]
             sleep 1
             count += 1 unless Thread.current["stop"]
-            if count >= Thread.current["time"].to_i
-              `say #{message}` if message
+            if count >= Thread.current["time"].to_i && message
+              TerminalNotifier.notify(message, :title => 'RubyPomodoro', :sound => 'default')
               count = 0
             elsif Thread.current["stop"]
               count = 0

@@ -1,8 +1,6 @@
 # Ruby::Pomodoro
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ruby/pomodoro`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+[Pomodoro](https://en.wikipedia.org/wiki/Pomodoro_Technique) CLI task tracker
 
 ## Installation
 
@@ -22,7 +20,9 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    $ ruby-pomodoro
+
+Then you will see an interactive interface where you can add and perform tasks.
 
 ## Development
 

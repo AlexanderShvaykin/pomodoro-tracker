@@ -68,11 +68,12 @@ module Ruby
         task_list
         print "Type number task: "
         task = @tasks[gets.to_i]
-        unless task
+        if task
+          Worker.do(task)
+        else
           puts "Sorry, task not found!"
           choose_task
         end
-        Worker.do(task)
       end
 
       def task_list

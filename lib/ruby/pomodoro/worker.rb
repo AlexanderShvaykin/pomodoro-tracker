@@ -31,6 +31,10 @@ module Ruby
 
         # @return [TrueClass]
         def resume
+          return unless defined? @do
+
+          changed
+          notify_observers(:resume)
           @do["pause"] = false
           true
         end

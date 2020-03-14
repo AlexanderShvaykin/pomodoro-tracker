@@ -115,5 +115,14 @@ RSpec.describe Ruby::Pomodoro::Worker do
       sleep 0.5
       expect(task.spent_time).to be > 0.4
     end
+
+    it 'calls observer' do
+      observer = double("observer", update: true)
+      worker.add_observer(observer)
+      expect(observer).to receive(:update).with(:resume)
+      worker.do(task)
+      worker.pause
+      worker.resume
+    end
   end
 end

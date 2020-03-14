@@ -20,6 +20,7 @@ module Ruby
         @pause_notification = pause
       end
 
+      # @param [Symbol] state
       def update(state)
         case state
         when :stop

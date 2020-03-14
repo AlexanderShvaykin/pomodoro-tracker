@@ -26,7 +26,7 @@ module Ruby
         when :stop
           @stop_notification.notify(TIME)
         when :pause
-          @pause_notification.notify(TIME)
+          @pause_notification.notify(TIME, skip_now: true)
         else
           @pause_notification.stop
         end
@@ -126,6 +126,7 @@ module Ruby
       def finish_app
         @pause_notification.stop
         @stop_notification.stop
+        Worker.delete_observers
         Worker.stop
       end
     end

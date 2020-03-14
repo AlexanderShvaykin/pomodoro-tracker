@@ -6,6 +6,6 @@ RSpec.describe Ruby::Pomodoro::Progressbar do
     bar.start("Foo")
     expect(stream).to receive(:flush).twice
     2.times { bar.increment }
-    expect(stream.buff).to eq [" In progress: Foo [2 m 0 s]\r", " In progress: Foo [1 m 59 s]\r", " In progress: Foo [1 m 58 s]\r"]
+    expect(stream.buff).to eq [" In progress: Foo [1 m 59 s]\r", " In progress: Foo [1 m 58 s]\r"]
   end
 end

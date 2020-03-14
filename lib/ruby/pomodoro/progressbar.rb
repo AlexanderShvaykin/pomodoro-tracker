@@ -11,7 +11,6 @@ module Ruby
 
       def start(text)
         @text = text
-        print
       end
 
       def increment

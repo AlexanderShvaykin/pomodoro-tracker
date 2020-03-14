@@ -1,5 +1,6 @@
 require 'terminal-notifier'
 require 'observer'
+require 'tty-cursor'
 require 'logger'
 require "ruby/pomodoro/version"
 require "ruby/pomodoro/task"
@@ -53,6 +54,7 @@ module Ruby
         )
         @tasks = []
 
+        print TTY::Cursor.clear_screen_up
         puts "Hi, your tasks:"
         puts "Count: #{@tasks.size}"
         task_list
@@ -67,9 +69,17 @@ module Ruby
         TEXT
 
         loop do
-          puts commands
-          2.times { puts }
+          if Worker.in_progress?
+            puts "In progress #{@progress_task.name}"
+            puts
+          else
+            puts "List of tasks:"
+            task_list
+            puts
+          end
+          print commands
           answer_handler(gets)
+          print TTY::Cursor.clear_screen_up
         rescue => e
           logger.error(e.message)
           puts "Oops! Error! Detail info in the log file (~/.ruby-pomodoro/log)"
@@ -91,8 +101,7 @@ module Ruby
       end
 
       def answer_handler(answer)
-        2.times { puts }
-        puts answer
+        print TTY::Cursor.clear_screen_up
         case answer.to_s.downcase
         when 'q'
           finish_app
@@ -107,26 +116,32 @@ module Ruby
           Worker.pause
         when 'r'
           Worker.resume
+        when "z"
+          true
         else
-          answer
-        end
-        @stop_notification.stop
+          false
+        end.tap { @stop_notification.stop }
       end
 
       def choose_task
         task_list
-        print "Type number task: "
-        task = @tasks[gets.to_i]
+        puts
+        print "Type number task, type z for return to menu"
+        answer = gets
+        task = @tasks[answer.to_i]
         if task
+          @progress_task = task
           Worker.do(task)
         else
-          puts "Sorry, task not found!"
-          choose_task
+          unless answer_handler(answer)
+            puts "Sorry, task not found!"
+            choose_task
+          end
         end
       end
 
       def task_list
-        @tasks.each.with_index { |t, i| puts "#{i}. #{t.name}" }
+        @tasks.each.with_index { |t, i| puts "#{i}. #{t.name} | #{format_time(t.spent_time)}" }
       end
 
       def add_task
@@ -147,6 +162,15 @@ module Ruby
         @stop_notification.stop
         Worker.delete_observers
         Worker.stop
+      end
+
+      def format_time(seconds)
+        days = seconds / 60 / 60 / 24
+        hours = (seconds - days * 24 * 60 * 60) / 60 / 60
+        minutes = (seconds - (hours * 60 * 60) - (days * 24 * 60 * 60)) / 60
+        {d: days, h: hours, m: minutes}.select { |_k, v| v.positive? }.each.with_object(String.new) do |item, acc|
+          acc << item.reverse.join(":") + " "
+        end.strip
       end
     end
   end

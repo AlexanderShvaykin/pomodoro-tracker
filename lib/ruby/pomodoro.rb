@@ -4,6 +4,7 @@ require "ruby/pomodoro/version"
 require "ruby/pomodoro/task"
 require "ruby/pomodoro/worker"
 require "ruby/pomodoro/progressbar"
+require "ruby/pomodoro/notification"
 
 module Ruby
   module Pomodoro

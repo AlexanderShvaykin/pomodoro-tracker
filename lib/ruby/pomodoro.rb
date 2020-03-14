@@ -5,6 +5,7 @@ require "ruby/pomodoro/task"
 require "ruby/pomodoro/worker"
 require "ruby/pomodoro/progressbar"
 require "ruby/pomodoro/notification"
+require "ruby/pomodoro/terminal_notifier_channel"
 
 module Ruby
   module Pomodoro

@@ -13,6 +13,7 @@ RSpec.describe Ruby::Pomodoro::Worker do
     worker.stop
     worker.time_interval = 1
     worker.pomodoro_size = 5
+    worker.delete_observers
   end
 
   describe "configure" do
@@ -43,6 +44,13 @@ RSpec.describe Ruby::Pomodoro::Worker do
 
     it "changes in_progress" do
       expect { subject }.to change(worker, :in_progress?).to(false)
+    end
+
+    it 'calls observer' do
+      observer = double("observer", update: true)
+      worker.add_observer(observer)
+      expect(observer).to receive(:update).with(:stop)
+      worker.stop
     end
   end
 
@@ -87,6 +95,14 @@ RSpec.describe Ruby::Pomodoro::Worker do
       sleep 0.5
       expect(task.spent_time).to be < 0.3
     end
+
+    it "calls observer" do
+      observer = double("observer", update: true)
+      worker.add_observer(observer)
+      expect(observer).to receive(:update).with(:pause)
+      worker.do(task)
+      worker.pause
+    end
   end
 
   describe ".resume" do
@@ -98,6 +114,15 @@ RSpec.describe Ruby::Pomodoro::Worker do
       worker.resume
       sleep 0.5
       expect(task.spent_time).to be > 0.4
+    end
+
+    it 'calls observer' do
+      observer = double("observer", update: true)
+      worker.add_observer(observer)
+      expect(observer).to receive(:update).with(:resume)
+      worker.do(task)
+      worker.pause
+      worker.resume
     end
   end
 end

@@ -3,23 +3,38 @@ module Ruby
     # Singleton for work with tasks in application
     module Worker
       class << self
+        include ::Observable
+
         attr_accessor :time_interval, :pomodoro_size, :progressbar
 
         # clear work, should be called before do next task
         # @return [TrueClass]
         def stop
+          return unless defined? @do
+
+          changed
+          notify_observers(:stop)
+
           @in_progress = false
-          @do&.kill
+          @do.kill
           true
         end
 
         # @return [TrueClass]
         def pause
+          return unless defined? @do
+
+          changed
+          notify_observers(:pause)
           @do["pause"] = true
         end
 
         # @return [TrueClass]
         def resume
+          return unless defined? @do
+
+          changed
+          notify_observers(:resume)
           @do["pause"] = false
           true
         end

@@ -19,6 +19,16 @@ RSpec.describe Ruby::Pomodoro::Notification do
         notify
         sleep 0.3
       end
+
+      context "with skip_now" do
+        subject(:notify) { notification.notify(0.2, skip_now: true) }
+
+        specify do
+          expect(channel).to receive(:call).with(message).once
+          notify
+          sleep 0.3
+        end
+      end
     end
   end
 

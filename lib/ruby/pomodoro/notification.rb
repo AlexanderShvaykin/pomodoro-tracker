@@ -10,10 +10,11 @@ module Ruby
         @channel = channel
       end
 
-      # @param repeat_at [Integer] Time to repeat
+      # @param repeat_at [Numeric] Time to repeat
+      # @param skip_now [Boolean] Skip notify after call, default: +false+
       # @return [TrueClass]
-      def notify(repeat_at = nil)
-        @channel.call(message)
+      def notify(repeat_at = nil, skip_now: false)
+        @channel.call(message) unless skip_now
         repeat(repeat_at) if repeat_at
         true
       end

@@ -9,6 +9,7 @@
 ## 0.1.1 (2020-03-13)
 
 - Notification after finish pomodoro ([@AlexanderShvaykin][])
+- Improvement stability ([@AlexanderShvaykin][])
 
 
 

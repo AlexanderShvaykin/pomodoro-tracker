@@ -4,7 +4,7 @@ module Ruby
       attr_reader :message
 
       # @param message [String] Message
-      # @param channel [Object] Channel to push message
+      # @param channel [Object, Module] Channel to push message
       def initialize(message, channel)
         @message = message
         @channel = channel
@@ -20,7 +20,7 @@ module Ruby
 
       # @return [TrueClass]
       def stop
-        @thread.kill
+        @thread&.kill
         true
       end
 

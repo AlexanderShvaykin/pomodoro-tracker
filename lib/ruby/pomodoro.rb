@@ -1,5 +1,6 @@
 require 'terminal-notifier'
 require 'observer'
+require 'logger'
 require "ruby/pomodoro/version"
 require "ruby/pomodoro/task"
 require "ruby/pomodoro/worker"
@@ -10,39 +11,45 @@ require "ruby/pomodoro/terminal_notifier_channel"
 module Ruby
   module Pomodoro
     class Error < StandardError; end
-    class WorkerNotification
-      TIME = 60 * 5
-
+    class WorkerNotificationObserver
       # @param stop [Ruby::Pomodoro::Notification]
       # @param pause [Ruby::Pomodoro::Notification]
-      def initialize(stop:, pause:)
+      # @param time [Numeric] repeat notifications interval in seconds
+      def initialize(stop:, pause:, time:)
         @stop_notification = stop
         @pause_notification = pause
+        @time = time
       end
 
       # @param [Symbol] state
       def update(state)
         case state
         when :stop
-          @stop_notification.notify(TIME)
+          @stop_notification.notify(@time)
         when :pause
-          @pause_notification.notify(TIME, skip_now: true)
+          @pause_notification.notify(@time, skip_now: true)
         else
           @pause_notification.stop
         end
       end
     end
 
+    REPEAT_ALERT_TIME = 60 * 5
+    POMODORO_SIZE = 60 * 30
+
     class << self
       def start
+        init_app_folder
         notify_ch = Ruby::Pomodoro::TerminalNotifierChannel
         @pause_notification = Ruby::Pomodoro::Notification.new("Task is paused, resume?", notify_ch)
         @stop_notification =
           Ruby::Pomodoro::Notification.new("Work is stopped, choose task for resume", notify_ch)
 
-        Worker.pomodoro_size = 60 * 30
+        Worker.pomodoro_size = POMODORO_SIZE
         Worker.add_observer(
-          WorkerNotification.new(stop: @stop_notification, pause: @pause_notification)
+          WorkerNotificationObserver.new(
+            stop: @stop_notification, pause: @pause_notification, time: REPEAT_ALERT_TIME
+          )
         )
         @tasks = []
 
@@ -63,13 +70,25 @@ module Ruby
           puts commands
           2.times { puts }
           answer_handler(gets)
+        rescue => e
+          logger.error(e.message)
+          puts "Oops! Error! Detail info in the log file (~/.ruby-pomodoro/log)"
         end
-      rescue
-        finish_app
-        abort "Sorry!"
       end
 
       private
+
+      def logger
+        path = File.join(Dir.home, ".ruby-pomodoro", "log")
+        @logger ||= Logger.new(path)
+      end
+
+      def init_app_folder
+        path = File.join(Dir.home, ".ruby-pomodoro")
+        unless Dir.exists?(path)
+          Dir.mkdir(path)
+        end
+      end
 
       def answer_handler(answer)
         2.times { puts }

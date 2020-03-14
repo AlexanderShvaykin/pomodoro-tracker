@@ -1,3 +1,5 @@
+![Ruby](https://github.com/AlexanderShvaykin/pomodoro-tracker/workflows/Ruby/badge.svg?branch=master)
+
 # Ruby::Pomodoro
 
 [Pomodoro](https://en.wikipedia.org/wiki/Pomodoro_Technique) CLI task tracker

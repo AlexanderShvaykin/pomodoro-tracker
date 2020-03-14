@@ -10,12 +10,39 @@ require "ruby/pomodoro/terminal_notifier_channel"
 module Ruby
   module Pomodoro
     class Error < StandardError; end
-    PENDING_REPEAT_TIME = 60 * 5
+    class WorkerNotification
+      TIME = 60 * 5
+
+      # @param stop [Ruby::Pomodoro::Notification]
+      # @param pause [Ruby::Pomodoro::Notification]
+      def initialize(stop:, pause:)
+        @stop_notification = stop
+        @pause_notification = pause
+      end
+
+      def update(state)
+        case state
+        when :stop
+          @stop_notification.notify(TIME)
+        when :pause
+          @pause_notification.notify(TIME)
+        else
+          @pause_notification.stop
+        end
+      end
+    end
+
     class << self
       def start
-        @notification = build_notification
-        @notification["stop"] = true
+        notify_ch = Ruby::Pomodoro::TerminalNotifierChannel
+        @pause_notification = Ruby::Pomodoro::Notification.new("Task is paused, resume?", notify_ch)
+        @stop_notification =
+          Ruby::Pomodoro::Notification.new("Work is stopped, choose task for resume", notify_ch)
+
         Worker.pomodoro_size = 60 * 30
+        Worker.add_observer(
+          WorkerNotification.new(stop: @stop_notification, pause: @pause_notification)
+        )
         @tasks = []
 
         puts "Hi, your tasks:"
@@ -58,13 +85,12 @@ module Ruby
           choose_task
         when 'p'
           Worker.pause
-          notify("Resume?", PENDING_REPEAT_TIME)
         when 'r'
-          @notification["stop"] = true
           Worker.resume
         else
           answer
         end
+        @stop_notification.stop
       end
 
       def choose_task
@@ -96,32 +122,10 @@ module Ruby
         STDIN.gets.chomp
       end
 
-      def notify(message, time)
-        @notification["message"] = message
-        @notification["time"] = time
-        @notification["stop"] = false
-      end
-
       def finish_app
-        @notification.kill
+        @pause_notification.stop
+        @stop_notification.stop
         Worker.stop
-      end
-
-      def build_notification
-        Thread.new do
-          count = 0
-          loop do
-            message = Thread.current["message"]
-            sleep 1
-            count += 1 unless Thread.current["stop"]
-            if count >= Thread.current["time"].to_i && message
-              TerminalNotifier.notify(message, :title => 'RubyPomodoro', :sound => 'default')
-              count = 0
-            elsif Thread.current["stop"]
-              count = 0
-            end
-          end
-        end
       end
     end
   end

@@ -5,6 +5,7 @@
 ## 0.2.0 (2020-03-15)
 
 - Add task editor
+- Add save tasks to disc
 
 ## 0.1.3 (2020-03-15)
 

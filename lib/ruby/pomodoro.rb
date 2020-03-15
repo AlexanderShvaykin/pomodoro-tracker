@@ -37,6 +37,12 @@ module Ruby
         end
       end
     end
+    module TaskLoader
+      # Plug for TaskEditor
+      # we don't need to open the editor, everything is already in the file
+      def self.open(*)
+      end
+    end
 
     REPEAT_ALERT_TIME = 60 * 5
     POMODORO_SIZE = 60 * 30
@@ -44,7 +50,7 @@ module Ruby
     class << self
       def start
         @tasks = []
-        init_app_folder
+        load_tasks
         notify_ch = Ruby::Pomodoro::TerminalNotifierChannel
         @pause_notification = Ruby::Pomodoro::Notification.new("Task is paused, resume?", notify_ch)
         @stop_notification =
@@ -63,7 +69,6 @@ module Ruby
         clear_terminal
         puts "Hi, your tasks:"
         puts "Count: #{@tasks.size}"
-        task_list
         2.times { puts }
         commands = <<~TEXT
           [c] - Choose task to work
@@ -94,6 +99,15 @@ module Ruby
 
       private
 
+      def load_tasks
+        path = File.join(init_app_folder, "tasks")
+        return unless File.exists?(path)
+
+        Ruby::Pomodoro::TasksEditor.new(
+          file_path: path, tasks_repo: @tasks, editor: TaskLoader
+        ).load
+      end
+
       def logger
         path = File.join(Dir.home, ".ruby-pomodoro", "log")
         @logger ||= Logger.new(path)
@@ -104,6 +118,7 @@ module Ruby
         unless Dir.exists?(path)
           Dir.mkdir(path)
         end
+        path
       end
 
       def answer_handler(answer)
@@ -159,6 +174,7 @@ module Ruby
         @stop_notification.stop
         Worker.delete_observers
         Worker.stop
+        @editor.save(File.join(init_app_folder, "tasks"))
       end
 
       def format_time(seconds)

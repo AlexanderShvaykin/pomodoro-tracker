@@ -21,6 +21,7 @@ module Ruby
         create_tasks(content)
         true
       end
+      alias_method :load, :edit
 
       # save list to disc
       # @param [String] path_to_file

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ruby-pomodoro (0.1.3)
+    ruby-pomodoro (0.2.0)
       terminal-notifier
       tty-cursor
       tty-editor

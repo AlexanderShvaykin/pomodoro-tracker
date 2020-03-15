@@ -43,11 +43,15 @@ module Ruby
 
     class << self
       def start
+        @tasks = []
         init_app_folder
         notify_ch = Ruby::Pomodoro::TerminalNotifierChannel
         @pause_notification = Ruby::Pomodoro::Notification.new("Task is paused, resume?", notify_ch)
         @stop_notification =
           Ruby::Pomodoro::Notification.new("Work is stopped, choose task for resume", notify_ch)
+        @editor = Ruby::Pomodoro::TasksEditor.new(
+          file_path: "/tmp/.ruby-pomodoro_tasks", tasks_repo: @tasks
+        )
 
         Worker.pomodoro_size = POMODORO_SIZE
         Worker.add_observer(
@@ -55,7 +59,6 @@ module Ruby
             stop: @stop_notification, pause: @pause_notification, time: REPEAT_ALERT_TIME
           )
         )
-        @tasks = []
 
         clear_terminal
         puts "Hi, your tasks:"
@@ -64,7 +67,7 @@ module Ruby
         2.times { puts }
         commands = <<~TEXT
           [c] - Choose task to work
-          [a] - Add task
+          [e] - Edit list of tasks
           [p] - Pause work
           [r] - Resume work
           [s] - Stop work
@@ -109,8 +112,8 @@ module Ruby
         when 'q'
           finish_app
           abort "Bye!"
-        when 'a'
-          add_task
+        when 'e'
+          @editor.call
         when 's'
           Worker.stop
         when 'c'
@@ -145,15 +148,6 @@ module Ruby
 
       def task_list
         @tasks.each.with_index { |t, i| puts "#{i}. #{t.name} | #{format_time(t.spent_time)}" }
-      end
-
-      def add_task
-        puts "New task, type name and enter"
-        print "Name: "
-        @tasks << Task.new(gets)
-        2.times { puts }
-        task_list
-        2.times { puts }
       end
 
       def gets

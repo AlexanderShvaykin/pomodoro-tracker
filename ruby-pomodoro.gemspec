@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.add_runtime_dependency 'terminal-notifier'
   spec.add_runtime_dependency 'tty-cursor'
+  spec.add_runtime_dependency 'tty-editor'
 end

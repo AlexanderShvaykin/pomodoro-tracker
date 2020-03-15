@@ -7,7 +7,7 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
     described_class.new(file_path: file_path, editor: test_editor, tasks_repo: tasks_repo)
   end
 
-  describe "#call" do
+  describe "#edit" do
     it "creates new tasks", :aggregate_failures do
       expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
       expect(tasks_repo.map(&:name)).to eq(content)
@@ -33,6 +33,15 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
         expect(tasks_repo.map(&:name)).to eq(["Foo", *names])
         expect(tasks_repo.map(&:spent_time)).to eq([60, 9600, 2400])
       end
+    end
+  end
+
+  describe "#save" do
+    let(:tasks_repo) { [Ruby::Pomodoro::Task.new("Foo", spent_time: 100)] }
+
+    it "adds new tasks with spent time", :aggregate_failures do
+      task_editor.save(file_path)
+      expect(File.read(file_path)).to eq("Foo | 1:m")
     end
   end
 end

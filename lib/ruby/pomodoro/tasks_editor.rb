@@ -22,6 +22,14 @@ module Ruby
         true
       end
 
+      # save list to disc
+      # @param [String] path_to_file
+      def save(path_to_file)
+        File.open(path_to_file, "w") do |f|
+          f << @tasks_repo.map {|task| print_task(task) }.join("\n")
+        end
+      end
+
       private
 
       def read_file

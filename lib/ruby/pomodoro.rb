@@ -113,7 +113,7 @@ module Ruby
           finish_app
           abort "Bye!"
         when 'e'
-          @editor.call
+          @editor.edit
         when 's'
           Worker.stop
         when 'c'

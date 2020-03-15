@@ -9,16 +9,16 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
 
   describe "#call" do
     it "creates new tasks", :aggregate_failures do
-      expect { task_editor.call }.to change(tasks_repo, :size).by(2)
+      expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
       expect(tasks_repo.map(&:name)).to eq(content)
-      expect(task_editor.call).to eq true
+      expect(task_editor.edit).to eq true
     end
 
     context "with task" do
       let(:tasks_repo) { [Ruby::Pomodoro::Task.new("Foo")] }
 
       it "adds new tasks", :aggregate_failures do
-        expect { task_editor.call }.to change(tasks_repo, :size).by(2)
+        expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
         expect(tasks_repo.map(&:name)).to eq(["Foo", *content])
       end
     end
@@ -29,7 +29,7 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
       let(:content) { ["#{names.first} | 2:h 40:m", "Task2 | 40:m"] }
 
       it "adds new tasks with spent time", :aggregate_failures do
-        task_editor.call
+        task_editor.edit
         expect(tasks_repo.map(&:name)).to eq(["Foo", *names])
         expect(tasks_repo.map(&:spent_time)).to eq([60, 9600, 2400])
       end

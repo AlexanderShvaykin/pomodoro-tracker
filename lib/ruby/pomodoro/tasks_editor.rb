@@ -14,7 +14,7 @@ module Ruby
 
       # Open editor and save tasks from tmp file to task_repo
       # @return [TrueClass]
-      def call
+      def edit
         initial_content = @tasks_repo.map {|task| print_task(task) }.join("\n")
         editor.open(file_path, content: initial_content)
         content = read_file

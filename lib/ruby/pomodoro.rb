@@ -3,6 +3,7 @@ require 'observer'
 require 'tty-cursor'
 require 'tty-editor'
 require 'logger'
+require "ruby/pomodoro/time_converter"
 require "ruby/pomodoro/version"
 require "ruby/pomodoro/tasks_editor"
 require "ruby/pomodoro/task"
@@ -167,12 +168,7 @@ module Ruby
       end
 
       def format_time(seconds)
-        days = seconds / 60 / 60 / 24
-        hours = (seconds - days * 24 * 60 * 60) / 60 / 60
-        minutes = (seconds - (hours * 60 * 60) - (days * 24 * 60 * 60)) / 60
-        {d: days, h: hours, m: minutes}.select { |_k, v| v.positive? }.each.with_object(String.new) do |item, acc|
-          acc << item.reverse.join(":") + " "
-        end.strip
+        Ruby::Pomodoro::TimeConverter.to_format_string(seconds)
       end
 
       def clear_terminal

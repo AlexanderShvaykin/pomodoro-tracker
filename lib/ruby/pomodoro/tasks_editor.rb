@@ -35,12 +35,15 @@ module Ruby
       def create_tasks(content)
         tasks_repo.clear
         content.each do |line|
-          tasks_repo.push(Task.new(line.chomp))
+          next unless line
+
+          name, time = line.split("|").compact.map {|l| l.chomp.strip }
+          tasks_repo.push(Task.new(name, spent_time: TimeConverter.to_seconds(time)))
         end
       end
 
       def print_task(task)
-        task.name
+        "#{task.name} | #{TimeConverter.to_format_string(task.spent_time)}"
       end
     end
   end

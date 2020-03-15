@@ -31,7 +31,7 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
       it "adds new tasks with spent time", :aggregate_failures do
         task_editor.call
         expect(tasks_repo.map(&:name)).to eq(["Foo", *names])
-        expect(tasks_repo.map(&:spent_time)).to eq([100, 9600, 2400])
+        expect(tasks_repo.map(&:spent_time)).to eq([60, 9600, 2400])
       end
     end
   end

@@ -12,9 +12,13 @@ module Ruby
         end
 
         def to_seconds(format_string)
-          match = format_string.split(" ").map do |item|
-              item.split(":").reverse
-            end.to_h.select { |k| ["m", "h", "d"].include?(k) }
+          return 0 if format_string.nil?
+
+          match = format_string.split(" ").compact.map do |item|
+            if item
+              item.split(":").reverse.then { |res| res.size == 2 ? res : nil }
+            end
+            end.compact.to_h.select { |k| %w[m h d].include?(k) }
           (match["d"].to_i * 24 * 60 * 60) + (match["h"].to_i * 60 * 60) + (match["m"].to_i * 60)
         end
       end

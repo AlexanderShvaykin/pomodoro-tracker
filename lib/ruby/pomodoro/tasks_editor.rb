@@ -1,12 +1,13 @@
 module Ruby
   module Pomodoro
     class TasksEditor
+      TMP_PATH = "/tmp/.ruby-pomodoro-tasks"
       attr_reader :tasks_repo, :editor, :file_path
 
       # @param [Array<Ruby::Pomodoro::Task>] tasks_repo
       # @param [String] file_path
       # @param editor [Class, Object] Editor with method open, for create and open file
-      def initialize(tasks_repo:, file_path: "/tmp/.ruby-pomodoro-tasks", editor: TTY::Editor)
+      def initialize(tasks_repo:, file_path:, editor: TTY::Editor)
         @tasks_repo = tasks_repo
         @file_path = file_path
         @editor = editor
@@ -16,25 +17,33 @@ module Ruby
       # @return [TrueClass]
       def edit
         initial_content = @tasks_repo.map {|task| print_task(task) }.join("\n")
-        editor.open(file_path, content: initial_content)
-        content = read_file
+        editor.open(TMP_PATH, content: initial_content)
+        content = read_tmp_file
         create_tasks(content)
         true
       end
-      alias_method :load, :edit
 
       # save list to disc
-      # @param [String] path_to_file
-      def save(path_to_file)
-        File.open(path_to_file, "w") do |f|
+      # @return [TrueClass]
+      def save
+        File.open(file_path, "w") do |f|
           f << @tasks_repo.map {|task| print_task(task) }.join("\n")
         end
+        true
+      end
+
+      # Load tasks form file
+      # @return [TrueClass]
+      def load
+        content = File.readlines(file_path)
+        create_tasks(content)
+        true
       end
 
       private
 
-      def read_file
-        file = File.new(file_path, "r")
+      def read_tmp_file
+        file = File.new(TMP_PATH, "r")
         content =  file.readlines
         file.close
         File.delete(file)

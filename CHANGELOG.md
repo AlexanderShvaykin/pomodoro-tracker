@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.2.1 (2020-03-15)
+
+- fix bugs
+
 ## 0.2.0 (2020-03-15)
 
 - Add task editor

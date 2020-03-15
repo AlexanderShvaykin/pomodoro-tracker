@@ -54,7 +54,7 @@ module Ruby
         )
         @tasks = []
 
-        print TTY::Cursor.clear_screen_up
+        clear_terminal
         puts "Hi, your tasks:"
         puts "Count: #{@tasks.size}"
         task_list
@@ -79,7 +79,7 @@ module Ruby
           end
           print commands
           answer_handler(gets)
-          print TTY::Cursor.clear_screen_up
+          clear_terminal
         rescue => e
           logger.error(e.message)
           puts "Oops! Error! Detail info in the log file (~/.ruby-pomodoro/log)"
@@ -101,7 +101,7 @@ module Ruby
       end
 
       def answer_handler(answer)
-        print TTY::Cursor.clear_screen_up
+        clear_terminal
         case answer.to_s.downcase
         when 'q'
           finish_app
@@ -126,7 +126,7 @@ module Ruby
       def choose_task
         task_list
         puts
-        print "Type number task, type z for return to menu"
+        puts "Type number task, type z for return to menu"
         answer = gets
         task = @tasks[answer.to_i]
         if task
@@ -171,6 +171,11 @@ module Ruby
         {d: days, h: hours, m: minutes}.select { |_k, v| v.positive? }.each.with_object(String.new) do |item, acc|
           acc << item.reverse.join(":") + " "
         end.strip
+      end
+
+      def clear_terminal
+        print TTY::Cursor.up(100)
+        print TTY::Cursor.clear_screen_down
       end
     end
   end

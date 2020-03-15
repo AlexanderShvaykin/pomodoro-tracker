@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.1.3 (2020-03-15)
+
+- Fix output bugs
+
 ## 0.1.2 (2020-03-15)
 
 - Fix bug, choose task if list of tasks is empty

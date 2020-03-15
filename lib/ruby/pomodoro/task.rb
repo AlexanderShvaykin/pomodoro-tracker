@@ -4,9 +4,10 @@ module Ruby
     class Task
       attr_reader :name, :pomodors, :spent_time
 
-      def initialize(name)
+      def initialize(name, spent_time: 0)
         @name = name
-        @spent_time = @pomodors = 0
+        @spent_time = spent_time
+        @pomodors = 0
       end
 
       # @return [Integer]

@@ -12,4 +12,17 @@ module AppHelper
 
     def flush; end
   end
+
+  class TestEditor
+    def initialize(content)
+      @content = content
+    end
+
+    def open(path, content: "")
+      File.open(path, "w") do |file|
+        file.puts(content) unless content.empty?
+        @content.each { |line| file.puts(line) }
+      end
+    end
+  end
 end

@@ -1,8 +1,10 @@
 require 'terminal-notifier'
 require 'observer'
 require 'tty-cursor'
+require 'tty-editor'
 require 'logger'
 require "ruby/pomodoro/version"
+require "ruby/pomodoro/tasks_editor"
 require "ruby/pomodoro/task"
 require "ruby/pomodoro/worker"
 require "ruby/pomodoro/progressbar"

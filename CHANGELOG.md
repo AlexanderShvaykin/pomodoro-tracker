@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.2.2 (2020-03-16)
+
+- add summary time
+- fix bugs
+- repeat task
+
 ## 0.2.1 (2020-03-15)
 
 - fix bugs

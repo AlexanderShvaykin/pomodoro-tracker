@@ -1,71 +1,72 @@
 module Ruby
   module Pomodoro
     # Singleton for work with tasks in application
-    module Worker
-      class << self
-        include ::Observable
+    class Worker
+      include Observable
+      include AASM
+      include Singleton
 
-        attr_accessor :time_interval, :pomodoro_size, :progressbar
+      attr_reader :current_task
+      attr_accessor :time_interval, :pomodoro_size, :progressbar
 
-        # clear work, should be called before do next task
-        # @return [TrueClass]
-        def stop
-          return unless defined? @do
+      aasm do
+        state :sleeping, initial: true
+        state :working, :paused
 
-          changed
-          notify_observers(:stop)
+        after_all_transitions :notify
 
-          @in_progress = false
-          @do.kill
-          true
+        event :start, before: :changed do
+          transitions from: :sleeping, to: :working, after: ->(task) { run_task(task) }
         end
 
-        # @return [TrueClass]
-        def pause
-          return unless defined? @do
-
-          changed
-          notify_observers(:pause)
-          @do["pause"] = true
+        event :resume, before: :changed do
+          transitions from: :paused, to: :working
         end
 
-        # @return [TrueClass]
-        def resume
-          return unless defined? @do
-
-          changed
-          notify_observers(:resume)
-          @do["pause"] = false
-          true
+        event :pause, before: :changed do
+          transitions from: :working, to: :paused
         end
 
-        # @param [Ruby::Pomodoro::Task] task
-        # @return [Ruby::Pomodoro::Task]
-        def do(task)
-          raise Error if @in_progress
-          @in_progress = true
-          @do = Thread.new do
-            progress = progressbar || Ruby::Pomodoro::Progressbar.new(seconds: pomodoro_size)
-            progress.start(task.name)
-            count = 0
-            loop do
-              seconds = time_interval || 1
-              sleep seconds
-              unless Thread.current["pause"]
-                task.track(seconds)
-                count += seconds
-                progress.increment
-              end
-              stop if count >= pomodoro_size.to_i
+
+        event :finish, before: :changed do
+          after { @do&.kill }
+
+          transitions from: :working, to: :sleeping
+        end
+
+        event :stop do
+          after { @do&.kill }
+
+          transitions to: :sleeping
+        end
+      end
+
+      private
+
+      def notify
+        notify_observers(aasm.current_event)
+      end
+
+      # @param [Ruby::Pomodoro::Task] task
+      # @return [TrueClass]
+      def run_task(task)
+        @current_task = task
+        @do = Thread.new do
+          progress = progressbar || Ruby::Pomodoro::Progressbar.new(seconds: pomodoro_size)
+          progress.start(task.name)
+          count = 0
+          loop do
+            seconds = time_interval || 1
+            sleep seconds
+            unless paused?
+              task.track(seconds)
+              count += seconds
+              progress.increment
+              finish if count >= pomodoro_size.to_i && working?
             end
           end
-          task
         end
-
-        # @return [TrueClass, FalseClass]
-        def in_progress?
-          @in_progress || false
-        end
+        true
       end
     end
   end

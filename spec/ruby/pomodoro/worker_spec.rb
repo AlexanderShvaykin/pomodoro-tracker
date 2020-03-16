@@ -1,16 +1,16 @@
 RSpec.describe Ruby::Pomodoro::Worker do
-  let(:worker) { described_class }
+  let(:worker) { described_class.instance }
   let(:task) { Ruby::Pomodoro::Task.new("foo") }
-  let(:progressbar) { instance_double(Ruby::Pomodoro::Progressbar, increment: nil, start: nil) }
+  let(:progressbar) { AppHelper::ProgressBar }
 
   before do
     worker.time_interval = 1
     worker.pomodoro_size = 5
     worker.progressbar = progressbar
+    worker.stop
   end
 
   after do
-    worker.stop
     worker.time_interval = 1
     worker.pomodoro_size = 5
     worker.delete_observers
@@ -29,10 +29,20 @@ RSpec.describe Ruby::Pomodoro::Worker do
     end
   end
 
+  describe "aasm" do
+    it "have aasm schema", :aggregate_failures do
+      expect(worker).to transition_from(:sleeping).to(:working).on_event(:start, :task)
+      expect(worker).to transition_from(:working).to(:paused).on_event(:pause)
+      expect(worker).to transition_from(:paused).to(:working).on_event(:resume)
+      expect(worker).to transition_from(:working).to(:sleeping).on_event(:finish)
+      expect(worker).to allow_transition_to(:sleeping)
+    end
+  end
+
   describe ".stop" do
     subject(:stop) { worker.stop }
 
-    before { worker.do(task) }
+    before { worker.start(task) }
 
     it "kills worker thread" do
       thread = Thread.list.find { |t| t.to_s.include?("pomodoro/worker.rb") }
@@ -42,33 +52,27 @@ RSpec.describe Ruby::Pomodoro::Worker do
       expect(thread.alive?).to eq(false)
     end
 
-    it "changes in_progress" do
-      expect { subject }.to change(worker, :in_progress?).to(false)
-    end
-
     it 'calls observer' do
       observer = double("observer", update: true)
       worker.add_observer(observer)
-      expect(observer).to receive(:update).with(:stop)
+      expect(observer).not_to receive(:update).with(:sleeping)
+      worker.stop
+      expect(observer).not_to receive(:update)
       worker.stop
     end
   end
 
-  describe ".do" do
-    subject(:do_task) { worker.do(task) }
-
-    it "returns task" do
-      expect(subject).to eq(task)
-    end
+  describe ".start" do
+    subject(:do_task) { worker.start(task) }
 
     it "can't keep more than one task" do
-      worker.do(task)
-      expect { subject }.to raise_error(Ruby::Pomodoro::Error)
+      worker.start(task)
+      expect { subject }.to raise_error(AASM::InvalidTransition)
     end
 
     it "tracks time and print progress", :aggregate_failures do
       expect(progressbar).to receive(:start).with(task.name)
-      expect(progressbar).to receive(:increment)
+      expect(progressbar).to receive(:increment).exactly(4).times
       worker.time_interval = 0.1
       do_task
       sleep 0.5
@@ -89,7 +93,7 @@ RSpec.describe Ruby::Pomodoro::Worker do
   describe ".pause" do
     it "pauses work" do
       worker.time_interval = 0.1
-      worker.do(task)
+      worker.start(task)
       sleep 0.1
       worker.pause
       sleep 0.5
@@ -99,16 +103,19 @@ RSpec.describe Ruby::Pomodoro::Worker do
     it "calls observer" do
       observer = double("observer", update: true)
       worker.add_observer(observer)
+      expect(observer).to receive(:update).with(:start)
+      worker.start(task)
       expect(observer).to receive(:update).with(:pause)
-      worker.do(task)
       worker.pause
+      expect(observer).not_to receive(:update)
+      expect { worker.pause }.to raise_error(AASM::InvalidTransition)
     end
   end
 
   describe ".resume" do
     it "pauses work" do
       worker.time_interval = 0.1
-      worker.do(task)
+      worker.start(task)
       sleep 0.1
       worker.pause
       worker.resume
@@ -119,10 +126,14 @@ RSpec.describe Ruby::Pomodoro::Worker do
     it 'calls observer' do
       observer = double("observer", update: true)
       worker.add_observer(observer)
+      expect(observer).to receive(:update).with(:start)
+      expect(observer).to receive(:update).with(:pause)
       expect(observer).to receive(:update).with(:resume)
-      worker.do(task)
+      worker.start(task)
       worker.pause
       worker.resume
+      expect(observer).not_to receive(:update)
+      expect { worker.resume }.to raise_error(AASM::InvalidTransition)
     end
   end
 end

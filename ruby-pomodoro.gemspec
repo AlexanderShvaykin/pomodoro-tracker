@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'terminal-notifier'
   spec.add_runtime_dependency 'tty-cursor'
   spec.add_runtime_dependency 'tty-editor'
+  spec.add_runtime_dependency 'aasm'
 end

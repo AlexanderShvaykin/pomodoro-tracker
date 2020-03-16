@@ -1,6 +1,7 @@
 require "bundler/setup"
 require "ruby/pomodoro"
 require 'app_helper'
+require 'aasm/rspec'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

@@ -3,6 +3,7 @@ require 'observer'
 require 'tty-cursor'
 require 'tty-editor'
 require 'logger'
+require 'aasm'
 require "ruby/pomodoro/time_converter"
 require "ruby/pomodoro/version"
 require "ruby/pomodoro/tasks_editor"
@@ -26,10 +27,12 @@ module Ruby
       end
 
       # @param [Symbol] state
-      def update(state)
-        case state
-        when :stop
+      def update(event)
+        case event
+        when :finish
           @stop_notification.notify(@time)
+          print TTY::Cursor.clear_line
+          print "_Task #{Worker.instance.current_task.name} was stopped, type [R] for resume\r"
         when :pause
           @pause_notification.notify(@time, skip_now: true)
         else
@@ -52,9 +55,10 @@ module Ruby
           file_path: File.join(init_app_folder, "tasks"), tasks_repo: @tasks
         )
         @editor.load
+        worker = Worker.instance
 
-        Worker.pomodoro_size = POMODORO_SIZE
-        Worker.add_observer(
+        worker.pomodoro_size = POMODORO_SIZE
+        worker.add_observer(
           WorkerNotificationObserver.new(
             stop: @stop_notification, pause: @pause_notification, time: REPEAT_ALERT_TIME
           )
@@ -71,20 +75,21 @@ module Ruby
         TEXT
 
         loop do
-          if Worker.in_progress?
-            puts "In progress #{@progress_task.name}"
-            puts
-          else
-            puts "List of tasks:"
-            task_list
-            puts
-          end
+          print "Total work time: "
+          puts TimeConverter.to_format_string(@tasks.inject(0) {|sum, n| sum + n.spent_time})
+          puts "List of tasks:"
+          task_list
+          puts
           print commands
           answer_handler(gets)
           clear_terminal
         rescue => e
           logger.error(e.message)
+          clear_terminal
           puts "Oops! Error! Detail info in the log file (~/.ruby-pomodoro/log)"
+          puts "Type any key for return"
+          gets
+          clear_terminal
         end
       end
 
@@ -104,23 +109,28 @@ module Ruby
       end
 
       def answer_handler(answer)
+        worker = Worker.instance
         clear_terminal
-        case answer.to_s.downcase
+        case answer.to_s
         when 'q'
           finish_app
           abort "Bye!"
         when 'e'
           @editor.edit
         when 's'
-          Worker.stop
+          @pause_notification.stop
+          worker.stop
         when 'c'
           choose_task
         when 'p'
-          Worker.pause
+          worker.pause
         when 'r'
-          Worker.resume
+          worker.resume
         when "z"
           true
+        when "R"
+          task = worker.current_task
+          worker.start(task) if task
         else
           false
         end.tap { @stop_notification.stop }
@@ -133,8 +143,7 @@ module Ruby
         answer = gets
         task = @tasks[answer.to_i]
         if task
-          @progress_task = task
-          Worker.do(task)
+          Worker.instance.start(task)
         else
           unless answer_handler(answer)
             puts "Sorry, task not found!"
@@ -152,10 +161,11 @@ module Ruby
       end
 
       def finish_app
+        worker = Worker.instance
         @pause_notification.stop
         @stop_notification.stop
-        Worker.delete_observers
-        Worker.stop
+        worker.delete_observers
+        worker.stop
         @editor.save
       end
 

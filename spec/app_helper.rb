@@ -13,6 +13,14 @@ module AppHelper
     def flush; end
   end
 
+  module ProgressBar
+    class << self
+      def start(*); end
+      def increment(*); end
+    end
+
+  end
+
   class TestEditor
     def initialize(content)
       @content = content

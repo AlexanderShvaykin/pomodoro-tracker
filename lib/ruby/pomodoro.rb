@@ -80,7 +80,11 @@ module Ruby
           puts "List of tasks:"
           task_list
           puts
-          print commands
+          if worker.paused?
+            print "_ Task #{worker.current_task.name} was paused, type [r] for resume\r"
+          else
+            print commands
+          end
           answer_handler(gets)
           clear_terminal
         rescue => e
@@ -116,16 +120,16 @@ module Ruby
           finish_app
           abort "Bye!"
         when 'e'
-          @editor.edit
+          safe_action { @editor.edit }
         when 's'
           @pause_notification.stop
           worker.stop
         when 'c'
-          choose_task
+          safe_action { choose_task }
         when 'p'
-          worker.pause
+          worker.pause if worker.working?
         when 'r'
-          worker.resume
+          worker.resume if worker.paused?
         when "z"
           true
         when "R"
@@ -136,19 +140,30 @@ module Ruby
         end.tap { @stop_notification.stop }
       end
 
+      def safe_action
+        changed = false
+        worker = Worker.instance
+        if worker.working?
+          changed = true
+          worker.pause
+        end
+        yield
+        worker.resume if changed && worker.paused?
+      end
+
       def choose_task
         task_list
         puts
         puts "Type number task, type z for return to menu"
         answer = gets
+        return if answer_handler(answer)
+
         task = @tasks[answer.to_i]
-        if task
+        if task && answer =~ /[0-9]+/
+          answer_handler('s')
           Worker.instance.start(task)
         else
-          unless answer_handler(answer)
-            puts "Sorry, task not found!"
-            choose_task
-          end
+          choose_task
         end
       end
 

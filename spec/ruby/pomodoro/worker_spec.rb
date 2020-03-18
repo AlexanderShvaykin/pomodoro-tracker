@@ -74,7 +74,7 @@ RSpec.describe Ruby::Pomodoro::Worker do
       expect(progressbar).to receive(:start).with(task.name)
       expect(progressbar).to receive(:increment).exactly(4).times
       worker.time_interval = 0.1
-      do_task
+      expect { subject }.to change(worker, :current_task).to(task)
       sleep 0.5
       expect(task.spent_time).to be >= 0.4
     end

@@ -2,6 +2,13 @@
 
 ## master
 
+## 0.2.3 (2020-03-18)
+
+- can choose task all time
+- can edit tasks all time
+- show pause message
+- fix mini bugs
+
 ## 0.2.2 (2020-03-16)
 
 - add summary time

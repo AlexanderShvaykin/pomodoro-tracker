@@ -1,0 +1,12 @@
+List of tasks:
+<% if @tasks %>
+<% @tasks.each do |task| %>
+  <%= task.id %>. <%= task.name %>
+<% end %>
+<% end %>
+
+[c] - Choose task to work
+[e] - Edit list of tasks
+[p] - Pause work
+[s] - Stop work
+[q] - Quit

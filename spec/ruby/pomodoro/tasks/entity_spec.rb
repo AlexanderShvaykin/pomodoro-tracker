@@ -1,5 +1,5 @@
-RSpec.describe Ruby::Pomodoro::Task do
-  subject(:task) { described_class.new(name) }
+RSpec.describe Ruby::Pomodoro::Tasks::Entity do
+  subject(:task) { described_class.new(name: name) }
   let(:name) { "Foo task" }
 
   it "has name" do

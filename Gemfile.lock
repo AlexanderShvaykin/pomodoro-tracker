@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ruby-pomodoro (0.2.3)
+    ruby-pomodoro (0.3.0)
       aasm
       terminal-notifier
       tty-cursor

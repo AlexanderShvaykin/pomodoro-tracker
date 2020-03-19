@@ -34,8 +34,11 @@ module Ruby
           transitions from: :working, to: :sleeping
         end
 
-        event :stop do
-          after { @do&.kill }
+        event :stop, before: :changed do
+          after do
+            @do&.kill
+            @current_task = nil
+          end
 
           transitions to: :sleeping
         end
@@ -50,6 +53,8 @@ module Ruby
       # @param [Ruby::Pomodoro::Task] task
       # @return [TrueClass]
       def run_task(task)
+        raise Error, "Setup pomodoro_size" if pomodoro_size.nil?
+
         @current_task = task
         @do = Thread.new do
           progress = progressbar || Ruby::Pomodoro::Progressbar.new(seconds: pomodoro_size)

@@ -2,6 +2,11 @@
 
 ## master
 
+## 0.3.0 (2020-03-21)
+
+- improved UI
+- move logic to command modules
+
 ## 0.2.3 (2020-03-18)
 
 - can choose task all time

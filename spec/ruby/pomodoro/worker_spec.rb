@@ -57,7 +57,7 @@ RSpec.describe Ruby::Pomodoro::Worker do
       worker.add_observer(observer)
       expect(observer).not_to receive(:update).with(:sleeping)
       worker.stop
-      expect(observer).not_to receive(:update)
+      expect(observer).to receive(:update)
       worker.stop
     end
   end

@@ -1,8 +1,8 @@
-RSpec.describe Ruby::Pomodoro::TasksEditor do
+RSpec.describe Ruby::Pomodoro::Tasks::Editor do
   let(:file_path) { "tmp/tasks" }
   let(:content) { ["Task1", "Task2"] }
   let(:test_editor) { AppHelper::TestEditor.new(content) }
-  let(:tasks_repo) { [] }
+  let(:tasks_repo) { Ruby::Pomodoro::Tasks::Resource }
   let(:task_editor) do
     described_class.new(file_path: file_path, editor: test_editor, tasks_repo: tasks_repo)
   end
@@ -11,39 +11,47 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
     unless Dir.exists?('tmp')
       Dir.mkdir("tmp")
     end
+    tasks_repo.delete_all
   end
 
   describe "#edit" do
     it "creates new tasks", :aggregate_failures do
       expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
-      expect(tasks_repo.map(&:name)).to eq(content)
+      expect(tasks_repo.all.map(&:name)).to eq(content)
       expect(task_editor.edit).to eq true
     end
 
     context "with task" do
-      let(:tasks_repo) { [Ruby::Pomodoro::Task.new("Foo")] }
+      before do
+        tasks_repo.create(name: "Foo")
+      end
 
       it "adds new tasks", :aggregate_failures do
         expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
-        expect(tasks_repo.map(&:name)).to eq(["Foo", *content])
+        expect(tasks_repo.all.map(&:name)).to eq(["Foo", *content])
       end
     end
 
     context "with time spent" do
-      let(:tasks_repo) { [Ruby::Pomodoro::Task.new("Foo", spent_time: 100)] }
       let(:names) { ["Task1", "Task2"] }
       let(:content) { ["#{names.first} | 2:h 40:m", "Task2 | 40:m"] }
 
+      before do
+        tasks_repo.create(name: "Foo", spent_time: 100)
+      end
+
       it "adds new tasks with spent time", :aggregate_failures do
         task_editor.edit
-        expect(tasks_repo.map(&:name)).to eq(["Foo", *names])
-        expect(tasks_repo.map(&:spent_time)).to eq([60, 9600, 2400])
+        expect(tasks_repo.all.map(&:name)).to eq(["Foo", *names])
+        expect(tasks_repo.all.map(&:spent_time)).to eq([60, 9600, 2400])
       end
     end
   end
 
   describe "#save" do
-    let(:tasks_repo) { [Ruby::Pomodoro::Task.new("Foo", spent_time: 100)] }
+    before do
+      tasks_repo.create(name: "Foo", spent_time: 100)
+    end
 
     it "adds new tasks with spent time", :aggregate_failures do
       task_editor.save
@@ -52,12 +60,13 @@ RSpec.describe Ruby::Pomodoro::TasksEditor do
   end
 
   describe "#load" do
-    let(:tasks_repo) { [Ruby::Pomodoro::Task.new("Foo", spent_time: 100)] }
-
-    before { task_editor.save }
+    before do
+      tasks_repo.create(name: "Foo", spent_time: 100)
+      task_editor.save
+    end
 
     it "loads tasks" do
-      tasks_repo.clear
+      tasks_repo.delete_all
       expect { task_editor.load }.to change(tasks_repo, :size).by(1)
     end
   end

@@ -3,6 +3,8 @@ module Ruby
   module Pomodoro
     module Cmd
       class Base
+        include TimeHelpers
+
         # @param [Ruby::Pomodoro::Printer] printer
         # @param prompt [Object]
         def initialize(printer: Ruby::Pomodoro::Printer.new, prompt: TTY::Prompt.new, worker: Ruby::Pomodoro::Worker.instance)

@@ -7,6 +7,7 @@ require 'logger'
 require 'aasm'
 require "erb"
 require "ruby/pomodoro/command_controller"
+require "ruby/pomodoro/time_helpers"
 require "ruby/pomodoro/notification_observer"
 require "ruby/pomodoro/printer"
 require "ruby/pomodoro/cmd/base"

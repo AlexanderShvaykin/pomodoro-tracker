@@ -1,7 +1,8 @@
+Total time: <%= to_format_string(Ruby::Pomodoro::Tasks::Resource.sum(:spent_time)) %>
 List of tasks:
 <% if @tasks %>
 <% @tasks.each do |task| %>
-  <%= task.id %>. <%= task.name %>
+  <%= task.id %>. <%= task.name %> <%= task.spent_time.zero? ? nil : to_format_string(task.spent_time) %>
 <% end %>
 <% end %>
 

@@ -16,6 +16,7 @@ require "ruby/pomodoro/cmd/choose_task"
 require "ruby/pomodoro/cmd/edit_list"
 require "ruby/pomodoro/cmd/pause"
 require "ruby/pomodoro/cmd/stop"
+require "ruby/pomodoro/cmd/error_handler"
 require "ruby/pomodoro/time_converter"
 require "ruby/pomodoro/version"
 require "ruby/pomodoro/tasks/resource"
@@ -53,7 +54,7 @@ module Ruby
         loop do
           reader.read_char
         rescue => e
-          puts e.message
+          Cmd::ErrorHandler.new.call(e)
         end
       end
 

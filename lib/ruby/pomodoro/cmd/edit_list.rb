@@ -4,10 +4,10 @@ module Ruby
       class EditList < Base
         def call(editor)
           print
-          worker.pause if worker.working?
+          worker.stop
+          editor.save
           editor.edit
           Main.new.call
-          worker.resume if worker.paused?
         end
       end
     end

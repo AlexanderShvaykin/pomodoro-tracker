@@ -2,6 +2,13 @@
 
 ## master
 
+## 0.3.1 (2020-03-23)
+
+- fix total time
+- add error handler
+- add russian keys support
+
+
 ## 0.3.0 (2020-03-21)
 
 - improved UI

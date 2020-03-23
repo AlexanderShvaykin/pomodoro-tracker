@@ -5,17 +5,17 @@ module Ruby
         def call(event)
           signal =
             case event.value
-            when 'q'
+            when 'q', 'й'
               Cmd::Quit.new.call(Pomodoro.editor)
-            when 'c'
+            when 'c', 'с'
               Cmd::ChooseTask.new.call
-            when 'e'
+            when 'e', 'у'
               Cmd::EditList.new.call(Pomodoro.editor)
-            when 'p'
+            when 'p', 'з'
               Cmd::Pause.new.call
-            when 's'
+            when 's', 'ы'
               Cmd::Stop.new.call
-            when 'R'
+            when 'R', 'К'
               Worker.instance.then do |worker|
                 task = worker.current_task
                 worker.start(task) if task

@@ -24,10 +24,8 @@ RSpec.describe Ruby::Pomodoro::Cmd::Pause do
       end
       let(:answer) { true }
 
-      it_behaves_like "clear terminal"
-
       it "pauses worker" do
-        expect(main_cmd).to receive(:call)
+        expect(main_cmd).to receive(:call).twice
         expect(worker).to receive(:pause)
         expect(worker).to receive(:resume)
         run

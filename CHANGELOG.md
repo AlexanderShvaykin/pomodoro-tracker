@@ -2,6 +2,11 @@
 
 ## master
 
+## 0.3.3 (2020-03-23)
+
+- add colors
+- activate terminal on click
+
 ## 0.3.2 (2020-03-23)
 
 - fix edit tasks

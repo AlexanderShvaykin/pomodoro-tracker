@@ -4,10 +4,11 @@ module Ruby
       # @param stop [Ruby::Pomodoro::Notification]
       # @param pause [Ruby::Pomodoro::Notification]
       # @param time [Numeric] repeat notifications interval in seconds
-      def initialize(stop:, pause:, time:)
+      def initialize(stop:, pause:, time:, printer: Printer.new)
         @stop_notification = stop
         @pause_notification = pause
         @time = time
+        @printer = printer
       end
 
       # @param [Symbol] event
@@ -15,8 +16,8 @@ module Ruby
         case event
         when :finish
           @stop_notification.notify(@time)
-          print TTY::Cursor.clear_line
-          print "_Task #{Worker.instance.current_task.name} was stopped, type [\u21e7 + R] for resume\r"
+          @printer.print_line "_Task #{Worker.instance.current_task.name} was stopped, type [\u21e7 + R] for resume\r",
+                        color: :red
         when :pause
           @pause_notification.notify(@time, skip_now: true)
         when :stop, :start

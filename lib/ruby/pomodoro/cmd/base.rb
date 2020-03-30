@@ -21,8 +21,18 @@ module Ruby
 
         attr_reader :prompt, :worker
 
-        def print(template_name = nil)
-          @printer.print_template(template_name, binding)
+        def print(clear: true, **options)
+          @printer.clear_terminal if clear
+
+          type, value = options.first
+          case type
+          when :template
+            @printer.print_template(value, binding)
+          when :text
+            @printer.print(value, color: options[:color])
+          else
+            nil
+          end
         end
       end
     end

@@ -1,12 +1,10 @@
 module Ruby
   module Pomodoro
     class Progressbar
-      DEFAULT_OUTPUT_STREAM = $stdout
-
-      def initialize(seconds:, output: nil)
+      def initialize(seconds:, printer: Ruby::Pomodoro::Printer.new)
         @all_seconds = seconds
         @spent_seconds = 0
-        @stream = output || DEFAULT_OUTPUT_STREAM
+        @printer = printer
       end
 
       def start(text)
@@ -21,8 +19,7 @@ module Ruby
       private
 
       def print
-        @stream.print " In progress: #{@text} [#{strftime}]" + "\r"
-        @stream.flush
+        @printer.print " In progress: #{@text} [#{strftime}]\r", color: :green
       end
 
       def strftime

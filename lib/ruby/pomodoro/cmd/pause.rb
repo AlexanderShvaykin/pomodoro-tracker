@@ -4,13 +4,14 @@ module Ruby
       class Pause < Base
         def call
           if worker.working?
-            print
+            Main.new.call
             worker.pause
             choices = [
               { key: 'y', name: "Resume this task", value: true },
               { key: 'n', name: 'Stop this task', value: false },
             ]
-            if prompt.expand("Resume? #{worker.current_task.name}", choices)
+            print text: "#{worker.current_task.name} was paused\n", color: :yellow, clear: false
+            if prompt.expand("Resume?", choices)
               Main.new.call
               worker.resume
             else

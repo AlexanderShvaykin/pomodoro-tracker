@@ -10,7 +10,7 @@ RSpec.describe Ruby::Pomodoro::Cmd::Quit do
       expect(worker).to receive(:delete_observers)
       expect(editor).to receive(:save)
       expect(run).to eq :quit
-      expect(stream.buff.last).to eq "Bye!\n"
+      expect(stream.buff.last).to eq "green Bye!\n"
     end
   end
 end

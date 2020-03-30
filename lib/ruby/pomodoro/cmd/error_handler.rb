@@ -5,10 +5,11 @@ module Ruby
         def call(error)
           path = File.join(Dir.home, ".ruby-pomodoro", "log")
           Logger.new(path).error(error.message)
-          print
-          puts "Oops! Error! Detail info in the log file (~/.ruby-pomodoro/log)"
-          puts "Type any key for return"
-          gets
+          print text: "Oops! Error! Detail info in the log file (~/.ruby-pomodoro/log)\n", color: :red
+          prompt.keypress(
+            "Press any key to continue, resumes automatically in 3 seconds ...", timeout: 3
+          )
+          Main.new.call
         end
       end
     end

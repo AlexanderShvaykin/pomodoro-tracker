@@ -1,8 +1,9 @@
 PATH
   remote: .
   specs:
-    ruby-pomodoro (0.3.2)
+    ruby-pomodoro (0.3.3)
       aasm
+      pastel
       terminal-notifier
       tty-cursor
       tty-editor

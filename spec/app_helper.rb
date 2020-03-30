@@ -1,4 +1,12 @@
 module AppHelper
+  class TestPalette
+    class << self
+      def method_missing(method, text)
+        "#{method} #{text}"
+      end
+    end
+  end
+
   class TestCursor
     class << self
       def up(n)

@@ -6,7 +6,7 @@ module Ruby
         # @return [Symbol] signal for controller
         def call
           @tasks = Ruby::Pomodoro::Tasks::Resource.all
-          print :main
+          print template: :main
           :ok
         end
       end

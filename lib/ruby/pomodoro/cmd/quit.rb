@@ -9,7 +9,8 @@ module Ruby
           worker.delete_observers
           worker.stop
           editor.save
-          print :quit
+          Main.new.call
+          print text: "Bye!\n", color: :green, clear: false
           :quit
         end
       end

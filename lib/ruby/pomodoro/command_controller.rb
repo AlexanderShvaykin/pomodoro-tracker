@@ -21,6 +21,15 @@ module Ruby
                 worker.start(task) if task
                 Cmd::Main.new.call
               end
+            when /[1-9]/
+              Worker.instance.then do |worker|
+                task = Ruby::Pomodoro::Tasks::Resource.find(event.value.to_i)
+                return if task.nil? || task.id == worker.current_task&.id
+
+                Cmd::Main.new.call
+                worker.stop
+                worker.start(task)
+              end
             else
               Cmd::Main.new.call
             end

@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.3.4 (2020-04-04)
+
+- add fast numbers keys, select task on type number
+
 ## 0.3.3 (2020-03-23)
 
 - add colors

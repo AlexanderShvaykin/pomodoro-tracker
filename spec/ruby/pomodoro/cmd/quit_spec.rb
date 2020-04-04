@@ -4,6 +4,11 @@ RSpec.describe Ruby::Pomodoro::Cmd::Quit do
 
     let(:worker) { instance_double(Ruby::Pomodoro::Worker) }
     let(:editor) { instance_double(Ruby::Pomodoro::Tasks::Editor) }
+    let(:main_cmd) { Proc.new { :ok } }
+
+    before do
+      allow(Ruby::Pomodoro::Cmd::Main).to receive(:new).and_return(main_cmd)
+    end
 
     it "sends stop and save and quit signal", :aggregate_failures do
       expect(worker).to receive(:stop)

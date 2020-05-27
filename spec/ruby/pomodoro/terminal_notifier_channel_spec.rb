@@ -3,7 +3,7 @@ RSpec.describe Ruby::Pomodoro::TerminalNotifierChannel do
 
   it "calls TerminalNotifier with message" do
     expect(TerminalNotifier).to receive(:notify).with(
-      message, title: 'RubyPomodoro', sound: 'default'
+      message, title: 'RubyPomodoro', sound: 'default', activate: "com.apple.Terminal"
     )
     described_class.call(message)
   end

@@ -26,9 +26,9 @@ module Ruby
         stream.flush
       end
 
-      def print_line(*args)
+      def print_line(text, color: nil)
         cursor.clear_line
-        print(*args)
+        print(text, color: color)
       end
 
 

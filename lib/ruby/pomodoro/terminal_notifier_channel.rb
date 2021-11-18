@@ -5,7 +5,7 @@ module Ruby
 
       def call(message)
         TerminalNotifier.notify(
-          message, title: "RubyPomodoro", sound: "default", activate: "com.apple.Terminal"
+          message, title: "RubyPomodoro", sound: "default"
         )
       end
     end

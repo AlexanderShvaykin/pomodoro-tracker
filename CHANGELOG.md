@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.4.0 (2021-11-18)
+
 - Adds Ruby 3 support
 - Fixes saving tasks
 - Fixes notifications

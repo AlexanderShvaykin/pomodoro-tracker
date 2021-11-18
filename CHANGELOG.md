@@ -2,6 +2,10 @@
 
 ## master
 
+- Adds Ruby 3 support
+- Fixes saving tasks
+- Fixes notifications
+
 ## 0.3.4 (2020-04-04)
 
 - add fast numbers keys, select task on type number

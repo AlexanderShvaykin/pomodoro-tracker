@@ -11,14 +11,21 @@ RSpec.describe Ruby::Pomodoro::Tasks::Editor do
     unless Dir.exists?('tmp')
       Dir.mkdir("tmp")
     end
+    File.delete(file_path) if File.exist?(file_path)
     tasks_repo.delete_all
   end
 
+  after do
+    File.delete(file_path) if File.exist?(file_path)
+  end
+
   describe "#edit" do
+    subject { task_editor.edit }
+
     it "creates new tasks", :aggregate_failures do
-      expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
+      expect { subject }.to change(tasks_repo, :size).by(2)
       expect(tasks_repo.all.map(&:name)).to eq(content)
-      expect(task_editor.edit).to eq true
+      expect(subject).to eq true
     end
 
     context "with task" do
@@ -27,7 +34,7 @@ RSpec.describe Ruby::Pomodoro::Tasks::Editor do
       end
 
       it "adds new tasks", :aggregate_failures do
-        expect { task_editor.edit }.to change(tasks_repo, :size).by(2)
+        expect { subject }.to change(tasks_repo, :size).by(2)
         expect(tasks_repo.all.map(&:name)).to eq(["Foo", *content])
       end
     end
@@ -55,7 +62,7 @@ RSpec.describe Ruby::Pomodoro::Tasks::Editor do
 
     it "adds new tasks with spent time", :aggregate_failures do
       task_editor.save
-      expect(File.read(file_path)).to eq("Foo | 1:m")
+      expect(File.read(file_path).chomp).to eq("Foo | 1:m")
     end
   end
 

@@ -45,9 +45,8 @@ module AppHelper
       @content = content
     end
 
-    def open(path, content: "")
-      File.open(path, "w") do |file|
-        file.puts(content) unless content.empty?
+    def open(path)
+      File.open(path, "a") do |file|
         @content.each { |line| file.puts(line) }
       end
     end

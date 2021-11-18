@@ -37,7 +37,7 @@ module Ruby
     POMODORO_SIZE = 60 * 30
 
     class << self
-      attr_reader :editor
+      attr_reader :editor, :tasks_file_path
 
       def start
         Worker.instance.then do |worker|
@@ -45,9 +45,9 @@ module Ruby
           worker.pomodoro_size = POMODORO_SIZE
         end
 
-        @editor = Tasks::Editor.new(
-          file_path: File.join(init_app_folder, "tasks")
-        )
+        @tasks_file_path = File.join(init_app_folder, "tasks")
+
+        @editor = Tasks::Editor.new(file_path: tasks_file_path)
         editor.load
         Cmd::Main.new.call
         reader = TTY::Reader.new

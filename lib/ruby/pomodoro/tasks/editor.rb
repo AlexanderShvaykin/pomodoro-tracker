@@ -2,13 +2,12 @@ module Ruby
   module Pomodoro
     module Tasks
       class Editor
-        TMP_PATH = "/tmp/.ruby-pomodoro-tasks"
         attr_reader :tasks_repo, :editor, :file_path
 
         # @param [Array<Ruby::Pomodoro::Task>] tasks_repo
         # @param [String] file_path
         # @param editor [Class, Object] Editor with method open, for create and open file
-        def initialize(tasks_repo: Resource, file_path:, editor: TTY::Editor)
+        def initialize(tasks_repo: Resource, file_path: Ruby::Pomodoro.tasks_file_path, editor: TTY::Editor)
           @tasks_repo = tasks_repo
           @file_path = file_path
           @editor = editor
@@ -17,10 +16,9 @@ module Ruby
         # Open editor and save tasks from tmp file to task_repo
         # @return [TrueClass]
         def edit
-          initial_content = @tasks_repo.all.map {|task| print_task(task) }.join("\n")
-          editor.open(TMP_PATH, content: initial_content)
-          content = read_tmp_file
-          create_tasks(content)
+          save
+          editor.open(file_path)
+          create_tasks
           true
         end
 
@@ -28,7 +26,9 @@ module Ruby
         # @return [TrueClass]
         def save
           File.open(file_path, "w") do |f|
-            f << @tasks_repo.all.map {|task| print_task(task) }.join("\n")
+            if @tasks_repo.size > 0
+              f.puts(@tasks_repo.all.map {|task| print_task(task) }.join("\n"))
+            end
           end
           true
         end
@@ -36,24 +36,19 @@ module Ruby
         # Load tasks form file
         # @return [TrueClass]
         def load
-          content = File.readlines(file_path)
-          create_tasks(content)
+          create_tasks
           true
         end
 
         private
 
         def read_tmp_file
-          file = File.new(TMP_PATH, "r")
-          content =  file.readlines
-          file.close
-          File.delete(file)
-          content
+          File.readlines(file_path)
         end
 
-        def create_tasks(content)
+        def create_tasks
           tasks_repo.delete_all
-          content.each do |line|
+          read_tmp_file.each do |line|
             next unless line
 
             name, time = line.split("|").compact.map {|l| l.chomp.strip }

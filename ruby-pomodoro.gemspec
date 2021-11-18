@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
   spec.add_runtime_dependency 'terminal-notifier'
-  spec.add_runtime_dependency 'tty-cursor'
-  spec.add_runtime_dependency 'tty-editor'
-  spec.add_runtime_dependency 'pastel'
-  spec.add_runtime_dependency 'aasm'
+  spec.add_runtime_dependency 'tty-cursor', '~> 0.6'
+  spec.add_runtime_dependency 'tty-editor', '~> 0.7'
+  spec.add_runtime_dependency 'pastel', '~> 0.8'
+  spec.add_runtime_dependency 'aasm', '~> 5'
 end
